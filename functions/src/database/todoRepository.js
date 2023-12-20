@@ -49,7 +49,7 @@ export async function getListTodo(query) {
 export async function updateStatus(ids) {
   const batch = admin.firestore().batch();
   const updatePromises = ids.map(async (id) => {
-    const { isCompleted } = (await todoRef.doc(`${id}`).get()).data();
+    const { isCompleted } = (await todoRef.doc(id).get()).data();
     batch.update(todoRef.doc(id), { isCompleted: !isCompleted });
   });
   return Promise.all(updatePromises);
