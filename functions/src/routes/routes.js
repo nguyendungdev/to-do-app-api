@@ -1,13 +1,11 @@
-const Router = require("koa-router");
-const todoController = require("../handlers/controllers/todoController");
-const todoInputMiddleware = require("../middlewares/todoInputMiddleware");
-
+import Router from "koa-router";
+import * as todosHandler from "../handlers/todoHandlers.js";
+import todoInputMiddleware from "../middlewares/todoInputMiddleware.js"
 const router = new Router({ prefix: "/api" });
-router.get("/todo", todoController.getToDoList)
-    .get("/todo/:id", todoController.getToDo)
-    .post("/todo", todoInputMiddleware, todoController.save)
-    .delete("/todo", todoController.deleteTodo)
-    .patch("/todo", todoController.update);
+router.get("/todo", todosHandler.getToDoList)
+    .post("/todo", todoInputMiddleware, todosHandler.save)
+    .delete("/todo", todosHandler.deleteTodo)
+    .patch("/todo", todosHandler.update);
 
-module.exports = router;
+export default router;
 

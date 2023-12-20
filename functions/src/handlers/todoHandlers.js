@@ -1,18 +1,12 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable no-unused-vars */
-const {
-  getAll,
-  getById,
-  addTodo,
-  updateStatus,
-  deleteByIds,
-} = require("../../database/todoRepository");
-const { isWhitespaceString } = require('../../utils/whitespaceUtils');
+import { getListTodo, addTodo, updateStatus, deleteByIds } from "../database/todoRepository.js"
+import isWhitespaceString from "../utils/whitespaceUtils.js";
 
-async function getToDoList(ctx) {
+export async function getToDoList(ctx) {
   try {
     const query = ctx.query;
-    const toDoList = await getAll(query);
+    const toDoList = await getListTodo(query);
     ctx.status = 200;
     return ctx.body = toDoList;
   } catch (e) {
@@ -25,31 +19,9 @@ async function getToDoList(ctx) {
   }
 }
 
-async function getToDo(ctx) {
-  try {
-    const { id } = ctx.params;
-    const toDo = await getById(id);
-    if (!toDo) {
-      throw new Error("No to do Found with the given id!");
-    }
-    ctx.status = 200;
-    return ctx.body = {
-      data: toDo,
-    };
-  } catch (e) {
-    ctx.status = 404;
-    return ctx.body = {
-      data: {},
-      success: false,
-      error: e.message,
-    };
-  }
-}
-
-async function save(ctx) {
+export async function save(ctx) {
   try {
     const postData = ctx.request.body || ctx.req.body;
-    console.log(postData)
     if (isWhitespaceString(postData.name)) {
       {
         ctx.status = 400;
@@ -81,7 +53,7 @@ async function save(ctx) {
   }
 }
 
-async function deleteTodo(ctx) {
+export async function deleteTodo(ctx) {
   try {
     const { ids } = ctx.query;
     const idList = ids.split(",");
@@ -100,7 +72,7 @@ async function deleteTodo(ctx) {
   }
 }
 
-async function update(ctx) {
+export async function update(ctx) {
   try {
     const { ids } = ctx.query;
     const idList = ids.split(",");
@@ -119,13 +91,4 @@ async function update(ctx) {
   }
 
 }
-
-module.exports = {
-
-  deleteTodo,
-  save,
-  update,
-  getToDo,
-  getToDoList,
-};
 

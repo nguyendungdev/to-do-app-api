@@ -1,5 +1,4 @@
-function isWhitespaceString(str) {
+export default function isWhitespaceString(str) {
     return str.trim() === '';
 }
 
-module.exports = { isWhitespaceString };

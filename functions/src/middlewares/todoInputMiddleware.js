@@ -1,9 +1,9 @@
 /* eslint-disable require-jsdoc */
-const yup = require("yup");
+import * as yup from "yup";
 
-async function toDoInputMiddleware(ctx, next) {
+export default async function toDoInputMiddleware(ctx, next) {
   try {
-    const postData = ctx.request.body||ctx.req.body;
+    const postData = ctx.request.body || ctx.req.body;
     const schema = yup.object().shape({
       name: yup.string().required(),
     });
@@ -18,5 +18,3 @@ async function toDoInputMiddleware(ctx, next) {
     };
   }
 }
-
-module.exports = toDoInputMiddleware;

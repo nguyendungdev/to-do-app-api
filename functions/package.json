@@ -1,5 +1,6 @@
 {
   "name": "functions",
+  "type": "module",
   "description": "Cloud Functions for Firebase",
   "scripts": {
     "lint": "eslint .",
@@ -15,7 +16,7 @@
   "main": "src/index.js",
   "dependencies": {
     "@koa/cors": "^5.0.0",
-    "firebase-admin": "^11.8.0",
+    "firebase-admin": "^11.11.1",
     "firebase-functions": "^4.3.1",
     "koa": "^2.14.2",
     "koa-body": "^3.0.0",

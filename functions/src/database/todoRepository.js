@@ -1,44 +1,32 @@
 /* eslint-disable valid-jsdoc */
 /* eslint-disable require-jsdoc */
 /* eslint-disable no-unused-vars */
-const { initializeApp, cert } = require("firebase-admin/app");
-const { getFirestore } = require("firebase-admin/firestore");
-const serviceAccount = require("./serviceAccont.json");
+import admin from "firebase-admin";
+import serviceAccount from "./serviceAccont.json" assert {type: "json"};
 
-initializeApp({
-  credential: cert(serviceAccount),
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
 });
-const db = getFirestore().collection("todo");
 
-
-async function getInfo(todoRef) {
-  const addedTodo = (await todoRef.get()).data();
-  return {
-    id: todoRef.id,
-    ...addedTodo,
-    createAt: addedTodo.createAt.toDate()
-  };
-}
-
+const todoRef = admin.firestore().collection("todo");
 
 /**
  *
  * @param {[{name:string,createAt:Date,isCompleted:boolean}]} data
  * @returns
  */
-async function addTodo(data) {
-  const todoRef = await db.add(data);
-  return getInfo(todoRef);
+export async function addTodo(data) {
+  const addedTodo = await todoRef.add(data);
+  return { id: addedTodo.id, ...data };
 }
-
 
 /**
  *
  * @param {string[]}query
  * @return {[{id:string ,name:string,createAt:Date,isCompleted:boolean}]}
  */
-async function getAll(query) {
-  let queryRef = db;
+export async function getListTodo(query) {
+  let queryRef = todoRef;
   const { limit, sort } = query;
 
   if (sort) {
@@ -47,66 +35,36 @@ async function getAll(query) {
   if (limit) {
     queryRef = queryRef.limit(parseInt(limit));
   }
-  const toDoDocs = (await queryRef.get()).docs;
-  const toDoList = toDoDocs.map((doc) => {
-    const data = doc.data();
-    data.id = doc.id;
-    data.createAt = data.createAt.toDate();
-    return data;
+
+  const toDoList = (await queryRef.get()).docs.map((doc) => {
+    return { id: doc.id, ...doc.data() };
   });
-
   return toDoList;
-}
-
-/**
- *
- * @param {string} id
- * @return {[{name:string,createAt:Date,isCompleted:boolean}]}
- */
-async function getById(id) {
-  const todo = await db.doc(id).get();
-  const todoData = todo.data();
-  if (!todoData) {
-    return null;
-  }
-  return { id: todo.id, ...todoData, createAt: todoData.createAt.toDate() };
 }
 
 /**
  *
  * @param {string[]} ids
  */
-async function updateStatus(ids) {
-  const batch = getFirestore().batch();
+export async function updateStatus(ids) {
+  const batch = admin.firestore().batch();
   const updatePromises = ids.map(async (id) => {
-    const todoRef = db.doc(id);
-    const todo = await getInfo(todoRef);
-    batch.update(todoRef, { isCompleted: !todo.isCompleted });
+    const { isCompleted } = (await todoRef.doc(`${id}`).get()).data();
+    batch.update(todoRef.doc(id), { isCompleted: !isCompleted });
   });
-  await Promise.all(updatePromises);
-  return batch.commit();
+  return Promise.all(updatePromises);
 }
-
 
 /**
  * 
  * @param {string[]} ids 
  * @returns 
  */
-async function deleteByIds(ids) {
-  const batch = getFirestore().batch();
-  ids.forEach((id) => {
-    const todoRef = db.doc(id);
-    batch.delete(todoRef);
+export async function deleteByIds(ids) {
+  const batch = admin.firestore().batch();
+  ids.map((id) => {
+    batch.delete(todoRef.doc(id));
   });
   return batch.commit();
 }
 
-
-module.exports = {
-  getAll,
-  getById,
-  addTodo,
-  updateStatus,
-  deleteByIds,
-};
